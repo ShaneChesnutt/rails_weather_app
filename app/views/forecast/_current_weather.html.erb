@@ -1,0 +1,30 @@
+<% if forecast.present? %>
+  <h2>Current Forecast</h2>
+  <% if cache %>
+    <p>Cached</p>
+  <% end %>
+  <h3><%= forecast.location_name %></h3>
+
+  <section>
+    <div>
+      <span>Description:</span>
+      <span><%= forecast.description %></span>
+    </div>
+    <div>
+      <span>Temperature:</span>
+      <span><%= forecast.temperature %>&#8457;</span>
+    </div>
+    <div>
+      <span>Feels Like:</span>
+      <span><%= forecast.feels_like %>&#8457;</span>
+    </div>
+    <div>
+      <span>High:</span>
+      <span><%= forecast.high %>&#8457;</span>
+    </div>
+    <div>
+      <span>Low:</span>
+      <span><%= forecast.low %>&#8457;</span>
+    </div>
+  </section>
+<% end %>

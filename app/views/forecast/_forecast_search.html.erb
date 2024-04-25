@@ -1,0 +1,23 @@
+<%= form_with url: forecast_search_path, scope: :address, method: 'post' do |form| %>
+  <span>
+    <%= form.label :street, "Street Address:" %>
+    <%= form.text_field :street, required: true %>
+  </span>
+
+  <span>
+    <%= form.label :city, "City:" %>
+    <%= form.text_field :city, required: true %>
+  </span>
+
+  <span>
+    <%= form.label :state, "State:" %>
+    <%= form.text_field :state, required: true %>
+  </span>
+
+  <span>
+    <%= form.label :zip, "Zipcode:" %>
+    <%= form.text_field :zip, required: true %>
+  </span>
+
+  <%= form.submit "Search" %>
+<% end %>
