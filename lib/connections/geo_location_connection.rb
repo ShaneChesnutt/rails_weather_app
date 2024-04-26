@@ -20,7 +20,7 @@ class GeoLocationConnection
   # @param zip [String] The postalcode of the address.
   # @param country [String] The country code of the address.
   #
-  # @return [HTTParty::Response] The location data from API request.
+  # @return [Hash] The location data from API request.
   #
   # @raise [GeoLocationConnectionError] if the geo location API responds with an
   #   unsuccessful response.
@@ -33,14 +33,17 @@ class GeoLocationConnection
         }
       }
     )
+    data = JSON.parse(response.body)
 
-    raise_geo_location_connection_error(response) unless success_code?(response.code)
+    raise_geo_location_connection_error(response.to_s) unless success_code?(response.code)
+    raise_geo_location_connection_error('Location mismatch error') unless location_match?(data, zip)
 
-    response
+    data
   end
 
   private
 
+  # rubocop:disable Metrics/MethodLength
   def query_params(street, city, state, zip, country)
     {
       street: street,
@@ -48,17 +51,25 @@ class GeoLocationConnection
       state: state,
       postalcode: zip,
       countrycodes: country,
+      limit: 1,
+      normalizeaddress: 1,
+      addressdetails: 1,
       key: @api_key,
       format: 'json'
     }
   end
+  # rubocop:enable Metrics/MethodLength
 
   def success_code?(code)
     code >= 200 && code < 300
   end
 
-  def raise_geo_location_connection_error(response)
-    Rails.logger.error("GeoLocationConnection: #{response}")
+  def location_match?(data, zip)
+    data[0]['address']['postcode'] == zip
+  end
+
+  def raise_geo_location_connection_error(error)
+    Rails.logger.error("GeoLocationConnection: #{error}")
     raise GeoLocationConnectionError, 'Unable to find location'
   end
 end

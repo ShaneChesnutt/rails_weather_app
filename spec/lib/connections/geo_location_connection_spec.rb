@@ -9,7 +9,6 @@ describe GeoLocationConnection do
   subject { described_class.new }
 
   describe 'find_coordinates' do
-    let(:body) { ['coordinates'] }
     let(:street) { '123 test dr' }
     let(:city) { 'Testington' }
     let(:state) { 'pa' }
@@ -23,6 +22,9 @@ describe GeoLocationConnection do
           state: state,
           postalcode: zip,
           countrycodes: country,
+          limit: 1,
+          normalizeaddress: 1,
+          addressdetails: 1,
           key: ENV['GEO_LOCATION_API_KEY'],
           format: 'json'
         },
@@ -33,6 +35,7 @@ describe GeoLocationConnection do
     end
 
     context 'when the api response is successful' do
+      let(:body) { [{ 'address' => { 'postcode' => '12345' } }].to_json }
       let(:response) { instance_double(HTTParty::Response, body: body, code: 200) }
 
       before do
@@ -43,12 +46,30 @@ describe GeoLocationConnection do
       it 'sends a get request to the configured geo location API' do
         expect(
           subject.find_coordinates(street, city, state, zip, country)
-        ).to eq(response)
+        ).to eq(JSON.parse(body))
       end
     end
 
     context 'when the api response is not successful' do
-      let(:response) { instance_double(HTTParty::Response, body: [], code: 401) }
+      let(:response) { instance_double(HTTParty::Response, body: [].to_json, code: 401) }
+
+      before do
+        allow(described_class).to receive(:get).with('/v1/search/structured', options)
+                                               .and_return(response)
+      end
+
+      it 'raises a GeoLocationConnectionError' do
+        expect do
+          subject.find_coordinates(
+            street, city, state, zip, country
+          )
+        end.to raise_error(GeoLocationConnectionError)
+      end
+    end
+
+    context 'when the search zipcode does not match the response postalcode' do
+      let(:body) { [{ 'address' => { 'postcode' => '65432' } }].to_json }
+      let(:response) { instance_double(HTTParty::Response, body: body, code: 200) }
 
       before do
         allow(described_class).to receive(:get).with('/v1/search/structured', options)

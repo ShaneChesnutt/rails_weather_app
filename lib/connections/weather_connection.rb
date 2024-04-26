@@ -17,8 +17,7 @@ class WeatherConnection
   # @param latitude [Float] The location latitude coordinate.
   # @param longitude [Float] The location longitude coordinate.
   #
-  # @return [HTTParty::Response] The current weather information from the API
-  #   request.
+  # @return [Hash] The current weather information from the API request.
   #
   # @raise [WeatherConnectionError] if the weather API responds with an
   #   unsuccessful response.
@@ -31,10 +30,11 @@ class WeatherConnection
                                   units: 'imperial'
                                 }
                               })
+    data = JSON.parse(response.body)
 
     raise_weather_connection_error(response) unless success_code?(response.code)
 
-    response
+    data
   end
 
   private
