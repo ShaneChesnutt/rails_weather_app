@@ -12,18 +12,6 @@ describe Forecast do
   let(:weather) { double(Weather) }
   let(:location) { double(Location) }
 
-  describe '#location_name' do
-    let(:location_name) { '123 Test Dr, Testington, PA, 12345, US' }
-
-    before do
-      allow(location).to receive(:name).and_return(location_name)
-    end
-
-    it 'returns the location name value' do
-      expect(subject.location_name).to eq(location_name)
-    end
-  end
-
   describe '#latitude' do
     let(:latitude) { 40.00 }
 

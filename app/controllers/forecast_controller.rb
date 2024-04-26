@@ -20,6 +20,7 @@ class ForecastController < ApplicationController
   def perform_search
     address = search_params
     @cache = true
+    @location_name = "#{address[:city]}, #{address[:state]}, #{address[:zip]}"
     @forecast = Rails.cache.fetch("#{address[:zip]}/forecast", expires_in: 30.minutes) do
       logger.info("Cache miss for zip: #{address[:zip]}")
       @cache = false
